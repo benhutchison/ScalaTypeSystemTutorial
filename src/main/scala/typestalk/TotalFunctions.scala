@@ -84,7 +84,7 @@ object TotalFunctions {
      /* Multiplying probabilities is common, and fortunately inherently safe.
      * A win for static typing.
      * */
-    def *(b: Probability) = new Probability(value + b.value)
+    def *(b: Probability) = new Probability(value * b.value)
   
     /** But addition, subtraction, and division can still fail at runtime.
      * 
