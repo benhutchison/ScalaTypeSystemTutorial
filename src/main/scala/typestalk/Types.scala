@@ -155,7 +155,7 @@ object Content {
    * against using structural typing. 
    * 
    * But keep an open mind for future possibilities. The invoke dynamic bytecode operator, 
-   * introduced in JDK 7, will likely make make structurally typed Scala code efficient 
+   * introduced in JDK 7, will likely make structurally typed Scala code efficient 
    * in the not too distant future. 
    * 
    * Finally, you may have heard the saying: 
