@@ -1,5 +1,7 @@
 package typestalk
 
+import math.Numeric.{DoubleIsFractional, FloatIsFractional}
+
 object TotalFunctions {
 
   /**
@@ -173,12 +175,15 @@ object TotalFunctions {
     def div(x: Probability, y: Probability): Probability = x / y
     def toDouble(x: Probability): Double = x.value
     def toFloat(x: Probability): Float = x.value.toFloat
+    def compare(x: Probability, y: Probability): Int =
+      DoubleIsFractional.compare(x.value, y.value)
 
     //dont make sense
     def negate(x: Probability): Probability = ???
     def fromInt(x: Int): Probability = ???
     def toInt(x: Probability): Int = ???
     def toLong(x: Probability): Long = ???
+
   }
 
   /**
@@ -259,18 +264,20 @@ object TotalFunctions {
    * In an earlier talk on typing that I gave back in February, I show how the 'with' keyword
    * can attach type tags to enrich a simpler type with extra meaning.
    * 
-   * For example, to signal that a direction Vector has unit length (ie magnitude of 1.0)*/
-  type Bar = {def direction: Foo}
-  type Foo = Bar with UnitLength
-  class UnitLength
-  case class Vector2[T: Numeric](x: T, y: T) extends UnitLength {
-    def direction: Foo = ???
-  }
-  
-  
+   * For example, to signal that a direction Vector has unit length (ie magnitude of 1.0)
+ * */
+  trait UnitLength
 
+  case class Vector2(val x: Double, val y: Double) {
+    def direction: UnitVector2 =
+      Vector2(x / magnitude, y / magnitude).asInstanceOf[UnitVector2]
+
+    lazy val magnitude = sqrt(x * x + y * y)
+  }
+  type UnitVector2 = Vector2 with UnitLength
   
-  /** Wrap up with question to the audience: can anyone think of any other types that 
+  
+  /** Wrap up with question to the audience: can anyone think of any other types that
    * describe aggregate qualities of a collection of things, rather than the things themselves?*/
   
   
@@ -292,9 +299,9 @@ object TotalFunctions {
   class Nat(val value: Int) extends AnyVal
   class Task
 
-  def validateBusinessUnit(unitId: String): ValidationNEL[String, BusinessUnit] = ???
-  def validateChargeCode(code: String): ValidationNEL[String, ChargeCode] = ???
-  def validateNatural(taskNum: Int): ValidationNEL[String, Nat] = ???
+  def validateBusinessUnit(unitId: String): ValidationNel[String, BusinessUnit] = ???
+  def validateChargeCode(code: String): ValidationNel[String, ChargeCode] = ???
+  def validateNatural(taskNum: Int): ValidationNel[String, Nat] = ???
   
   def findTask(unit: BusinessUnit, code: ChargeCode, taskNum: Nat): Task = ???
   
@@ -310,7 +317,7 @@ object TotalFunctions {
    * 
    *  The rest of the boilerplate is factored away into Scalaz.*/
   
-  def validateTask(unitId: String, code: String, taskNum: Int): ValidationNEL[String, Task] = {
+  def validateTask(unitId: String, code: String, taskNum: Int): ValidationNel[String, Task] = {
     (validateBusinessUnit(unitId) |@| 
         validateChargeCode(code) |@| 
         validateNatural(taskNum)) 
